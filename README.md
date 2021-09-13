@@ -4,7 +4,7 @@ This project is a backend of a application that allows the user to import resume
 MODELS:
 
 [User, Website, Project, Education, Experience, Profile, Payment, Price]
---
+
 
 FUNCTIONS:
 
@@ -13,9 +13,8 @@ FUNCTIONS:
 /controller/functions/external [getCustomer, getCustomerCard, uploadToBucket, createUserBucket, etc...]
 
 AWS(S3, CLOUDWATCH(coming soon), ROUTE53(coming soon)) SDK
---
-SQUARE API use
---
+SQUARE API 
+
 
 
 ROUTES:
