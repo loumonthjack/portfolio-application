@@ -2,13 +2,18 @@
 This project is a backend of a application that allows the user to import resume then transform into a s3 hosting bucket website.
 
 MODELS:
-MONGODB MODELS --> /models ==> [User, Website, Project, Education, Experience, Profile, Payment, Price]
+[User, Website, Project, Education, Experience, Profile, Payment, Price]
 --
 
 FUNCTIONS:
-CRUD FUNCTIONS --> /controller/functions/internal [getPrice, getUserPayments, getUser, getUserProfile, getWebsite, etc...]
+/controller/functions/internal [getPrice, getUserPayments, getUser, getUserProfile, getWebsite, etc...]
+
+/controller/functions/external [getCustomer, getCustomerCard, uploadToBucket, createUserBucket, etc...]
+
+External Services used:
+AWS(S3, CLOUDWATCH(coming soon), ROUTE53(coming soon)) SDK
 --
-THIRD PARTY SERVICES USED AWS(S3, CLOUDWATCH, ROUTE53) SDK, SQUARE API --> /controller/functions/external [getCustomer, getCustomerCard, uploadToBucket, createUserBucket, etc...]
+SQUARE API use
 --
 
 
