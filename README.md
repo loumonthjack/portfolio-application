@@ -6,6 +6,7 @@ MODELS:
 [User, Website, Project, Education, Experience, Profile, Payment, Price]
 
 
+
 FUNCTIONS:
 
 /controller/functions/internal [getPrice, getUserPayments, getUser, getUserProfile, getWebsite, etc...]
@@ -15,6 +16,7 @@ FUNCTIONS:
 AWS (S3, CLOUDWATCH(coming soon), ROUTE53(coming soon)) SDK
 
 SQUARE CONNECT API 
+
 
 
 
