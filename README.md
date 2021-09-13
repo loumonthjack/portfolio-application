@@ -1,4 +1,6 @@
 # portfolio-application
+NODE.JS -- EXPRESS
+
 This project is a backend of a application that allows the user to import resume then transform into a s3 hosting bucket website.
 
 MODELS:
