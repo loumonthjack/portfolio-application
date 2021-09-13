@@ -80,19 +80,11 @@ async function getCustomerCard(userId) {
 async function createCustomerCard(userId) {}
 async function disableCustomerCard(userId) {}
 
-async function getSubscription(userId) {}
-async function createSubscription(userId) {}
-async function cancelSubscription(userId) {}
-
-
 module.exports = {
     getAllCustomers,
     getCustomer,
     getCustomerCard,
-    getSubscription,
     createCustomer,
     createCustomerCard,
-    createSubscription,
     disableCustomerCard,
-    cancelSubscription
 }
