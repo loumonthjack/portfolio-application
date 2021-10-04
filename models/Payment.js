@@ -25,9 +25,13 @@ const PaymentSchema = new Schema({
     ref: "Price",
     required: true
   },
-  cardSQ: {
+  SubscriptionId: {
     type: String,
     required:true
+  },
+  CardId: {
+    type: String,
+    require:true
   }
 });
 

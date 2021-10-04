@@ -1,18 +1,22 @@
 const Education = require("../../../models/Education");
 
-async function getAllEducations(){
+async function getAllEducations() {
     const educations = await Education.find();
     return educations;
 }
-async function getEducation(educationId){
-    const education = await Education.find({_id:educationId});
+async function getEducation(educationId) {
+    const education = await Education.find({
+        _id: educationId
+    });
     return education;
 }
-async function getUserEducations(userId){
-    const educations = await Education.find({userId:userId});
+async function getUserEducations(userId) {
+    const educations = await Education.find({
+        userId: userId
+    });
     return educations;
 }
-async function createUserEducation(userId, data){
+async function createUserEducation(userId, data) {
     const education = await Education.create({
         schoolTitle: data.schoolTitle,
         studyField: data.studyField,
@@ -25,13 +29,16 @@ async function createUserEducation(userId, data){
     })
     return education;
 }
-async function updateUserEducation(userId, data){}
-async function deleteUserEducation(educationId){
-    try{
-        const education = await Education.deleteOne({_id:educationId})
+async function updateUserEducation(userId, data) {}
+async function deleteUserEducation(educationId) {
+    try {
+        const education = await Education.deleteOne({
+            _id: educationId
+        })
         return education
+    } catch (err) {
+        return err
     }
-    catch(err){return err}
 }
 
 

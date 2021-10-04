@@ -1,21 +1,25 @@
 const User = require("../../../models/User");
 
 // FUNCTIONS
-async function getAllUsers(){
+async function getAllUsers() {
     const user = await User.find()
     return user
 }
-async function getUser(userId){
-    const user = await User.find({_id:userId})
+async function getUser(userId) {
+    const user = await User.find({
+        _id: userId
+    })
     return user
 }
 
-async function getUserRole(userId){
-    const admin = await User.findOne({_id:userId});
+async function getUserRole(userId) {
+    const admin = await User.findOne({
+        _id: userId
+    });
     return admin.role;
 }
 
-module.exports={
+module.exports = {
     getUser,
     getUserRole,
     getAllUsers

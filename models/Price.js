@@ -43,7 +43,7 @@ const PriceSchema = new Schema({
         enum: ["monthly", "yearly"],
         required: true
     },
-    subscriptionSQ: {
+    CatalogId: {
         type: String,
         required: true
     }

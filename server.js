@@ -18,7 +18,7 @@ const app = express();
 
 // Bodyparser middleware
 app.use(cors({
-  origin:'*', 
+  origin: '*',
   credentials: true,
   optionSuccessStatus: 200,
 }));
@@ -29,9 +29,11 @@ const db = require("./config/keys").mongoURI;
 // Connect to MongoDB
 mongoose
   .connect(
-    db,
-    { useNewUrlParser: true },
-    { useUnifiedTopology: true }
+    db, {
+      useNewUrlParser: true
+    }, {
+      useUnifiedTopology: true
+    }
   )
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
@@ -40,16 +42,18 @@ mongoose
 const oneDay = 1000 * 60 * 60 * 24;
 app.use(
   session({
-    secret:'dsafiu6l4iw7toglejhsdfvfa', 
-    name: "session-cookie", 
-    resave: true, 
+    secret: 'dsafiu6l4iw7toglejhsdfvfa',
+    name: "session-cookie",
+    resave: true,
     saveUninitialized: true,
-    cookie: { maxAge: oneDay }
+    cookie: {
+      maxAge: oneDay
+    }
     //store: RedisClient
-    }));
+  }));
 app.use(
-    bodyParser.json()
-  );
+  bodyParser.json()
+);
 app.use(
   bodyParser.urlencoded({
     extended: false
@@ -68,10 +72,16 @@ app.use("/register", registerApi);
 app.use("/home", landingApi)
 app.use("/portfolio", viewerApi)
 
-function authorizeToken(req, res, next){
+function authorizeToken(req, res, next) {
   const header = req.headers['authorization'].split(' ')
   const authorized = req.headers && req.headers['authorization'] && header[1]
-  if(authorized){ next() }else{ res.status(400).json({message:"Not Authorized. Try Logging In.."})}
+  if (authorized) {
+    next()
+  } else {
+    res.status(400).json({
+      message: "Not Authorized. Try Logging In.."
+    })
+  }
 }
 // Private Routes
 app.use('/dashboard', dashboardApi);

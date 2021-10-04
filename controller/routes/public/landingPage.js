@@ -5,7 +5,7 @@ const Price = require('./../../functions/internal/price');
 
 router.get('/', async(req, res)=>{
     try{
-        const prices = await Price.getAllPrices();
+        const prices = await Price.getPrices();
         res.send({
             prices: prices
         })
