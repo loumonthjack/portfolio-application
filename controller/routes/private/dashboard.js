@@ -275,6 +275,7 @@ router.get('/:user_id/customer/card', async (req, res) => {
         return console.log(err)
     }
 })
+
 router.post('/:user_id/customer/card', async (req, res) => {
     try {
         const user = req.params.user_id;
@@ -284,6 +285,7 @@ router.post('/:user_id/customer/card', async (req, res) => {
         return console.log(err)
     }
 })
+
 router.get('/square/prices', async (req, res) => {
     try {
         const catalogs = await Square.getPriceTypes();
@@ -311,15 +313,6 @@ router.get('/square/price/premium', async (req, res) => {
     }
 })
 
-router.get('/square/prices', async (req, res) => {
-    try {
-        const catalogs = await Square.getPriceTypes();
-        return res.send(catalogs);
-    } catch (err) {
-        return console.log(err)
-    }
-})
-
 /**
 router.post('/square/price', async(req, res) => {
     const catalogs = await Square.createPriceType();
@@ -327,7 +320,7 @@ router.post('/square/price', async(req, res) => {
 })
  */
 
-router.get('/profile/prices', async (req, res) => {
+router.get('/portfolio/prices', async (req, res) => {
     try {
         const prices = await Price.getPrices();
         return res.send({
@@ -338,7 +331,7 @@ router.get('/profile/prices', async (req, res) => {
     }
 })
 
-router.get('/profile/:price_id/price', async (req, res) => {
+router.get('/portfolio/:price_id/price', async (req, res) => {
     try {
         const priceId = req.params.price_id;
         const prices = await Price.getPrice(priceId);
@@ -350,7 +343,7 @@ router.get('/profile/:price_id/price', async (req, res) => {
     }
 })
 
-router.post('/profile/price', async (req, res) => {
+router.post('/portfolio/price', async (req, res) => {
     try {
         const newPrice = await Price.createPrice();
         return res.send(newPrice)

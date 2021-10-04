@@ -7,7 +7,7 @@ async function getUserProfile(userId) {
     const profile = await Profile.find({
         userId: userId
     });
-    return profile;
+    return profile[0];
 }
 async function createUserProfile(userId, data) {
     const profile = await Profile.create({
