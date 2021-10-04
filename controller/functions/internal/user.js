@@ -1,4 +1,4 @@
-const User = require("../../../portfolio-application/models/User");
+const User = require("../../../models/User");
 
 // FUNCTIONS
 async function getAllUsers(){

@@ -8,7 +8,7 @@ const keys = require("../../../config/keys");
 const validateLoginInput = require("../../../validation/login");
 
 // Load User Model
-const User = require("../../../portfolio-application/models/User");
+const User = require("../../../models/User");
 
 // @route POST user/login
 // @desc Login User & Return JWT token
@@ -35,7 +35,7 @@ router.post("/", (req, res) => {
       bcrypt.compare(password, user.password).then(isMatch => {
         if (isMatch) {
           // User matched
-          // Create JWT Payload
+          // Create JWT Payload yb               h bcc
           const payload = {
             id: user.id,
             name: user.name
@@ -50,7 +50,8 @@ router.post("/", (req, res) => {
             (err, token) => {
               res.json({
                 success: true,
-                token: "Bearer " + token
+                token: "Bearer " + token,
+                id: user._id
               });
             }
           );

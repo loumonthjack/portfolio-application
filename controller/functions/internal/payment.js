@@ -1,4 +1,4 @@
-const Payment = require("../../../portfolio-application/models/Payment");
+const Payment = require("../../../models/Payment");
 
 async function getPayment(paymentId){
     const payment = await Payment.find({_id:paymentId});

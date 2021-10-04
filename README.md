@@ -11,7 +11,7 @@ MODELS:
 
 FUNCTIONS:
 
-/controller/functions/internal [getPrice, getUserPayments, getUser, getUserProfile, getWebsite, etc...]
+/controller/functions/internal [getPrice, getUserPayments, getUser, getUserProfile, getUserWebsite, etc...]
 
 /controller/functions/external [getCustomer, getCustomerCard, uploadToBucket, createUserBucket, etc...]
 

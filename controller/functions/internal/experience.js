@@ -1,5 +1,5 @@
-const Experience = require('../../../portfolio-application/models/Experience');
-const { getWebsite } = require('./website');
+const Experience = require('../../../models/Experience');
+const { getUserWebsite } = require('./website');
 
 async function getAllExperiences(){
     const experiences = await Experience.find();
@@ -16,8 +16,6 @@ async function getUserExperiences(userId){
 }
 
 async function createUserExperience(userId, data){
-    const website = getWebsite(userId);
-    if(website){
         const experience = await Experience.create({
             jobTitle: data.jobTitle,
             employer: data.employer,
@@ -25,26 +23,18 @@ async function createUserExperience(userId, data){
             state: data.state,
             start_date: data.start_date,
             end_date: data.end_date,
-            websiteId: website._id,
             userId: userId
         })
         return experience;
-    }else{
-        const experience = await Experience.create({
-            jobTitle: data.jobTitle,
-            employer: data.employer,
-            city: data.city,
-            state: data.state,
-            start_date: data.start_date,
-            end_date,
-            userId: userId
-        })
-        return experience;
-    }
 }
 
 async function updateUserExperience(userId, data){}
-async function deleteUserExperience(userId){}
+async function deleteUserExperience(experienceId){
+    try{
+        const experience = await Experience.deleteOne({_id:experienceId});
+        return experience
+    }catch(err){return err}
+}
 
 
 module.exports = {

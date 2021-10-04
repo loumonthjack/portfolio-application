@@ -1,28 +1,17 @@
-const Website = require("../../../portfolio-application/models/Website")
-const { getUserEducations } = require('./education');
-const { getUserExperiences } = require('./experience');
-const { getUserProfile } = require('./profile');
-const { getUserProjects } = require('./project');
+const Website = require("../../../models/Website")
 const { getUserRole } = require('./user')
 
-async function getWebsite(userId){
+async function getUserWebsite(userId){
     const website = await Website.find({userId:userId});
     const userType = getUserRole(userId);
 
     if(userType == 'basic'){
-        return null
+        console.log(userType)
+        return []
     }
-    else if(userType == 'plus'){
-        return {
-            website: {
-                s3Url: website.s3Url,
-                userId: userId
-            }
-        }
-    }
-    else if(userType == 'premium'){
+    
         return website
-    }
+
 }
 async function getWebsiteByUrl(requestUrl){
     try{
@@ -59,7 +48,7 @@ async function updateUserWebsite(userId, data){}
 
 module.exports={
     createUserWebsite,
-    getWebsite,
+    getUserWebsite,
     deleteUserWebsite,
     updateUserWebsite,
     getWebsiteByUrl

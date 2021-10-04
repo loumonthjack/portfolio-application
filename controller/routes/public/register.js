@@ -6,7 +6,7 @@ const bcrypt = require("bcryptjs");
 const validateRegisterInput = require("../../../validation/register");
 
 // Load User Model
-const User = require("../../../portfolio-application/models/User");
+const User = require("../../../models/User");
 
 // @route POST user/register
 // @desc Register User
@@ -26,8 +26,8 @@ router.post("/", (req, res) => {
         return res.status(400).json({ email: "Email already exists" });
       } else {
         const newUser = new User({
-          firstName: req.body.first_name,
-          lastName: req.body.last_name,
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
           email: req.body.email,
           password: req.body.password,
           role: "basic"
@@ -40,7 +40,13 @@ router.post("/", (req, res) => {
             newUser.password = hash;
             newUser
               .save()
-              .then(user => res.json(user))
+              .then(user => res.json({
+                id: user._id,
+                firstName: user.firstName, 
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role
+              }))
               .catch(err => console.log(err));
           });
         });

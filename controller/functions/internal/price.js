@@ -1,4 +1,4 @@
-const Price = require("../../../portfolio-application/models/Price");
+const Price = require("../../../models/Price");
 
 async function getAllPrices(){
     const prices = await Price.find();
