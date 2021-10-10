@@ -86,7 +86,7 @@ function authorizeToken(req, res, next) {
 // Private Routes
 app.use('/dashboard', dashboardApi);
 //app.use('/profile', profileApi);
-app.use('/resume', resumeApi);
+//app.use('/resume', resumeApi);
 //app.use('/billing', billingApi);
 app.use('/logout', logoutApi);
 
