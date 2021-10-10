@@ -1,7 +1,4 @@
 const Profile = require("../../../models/Profile");
-const {
-    getUserWebsite
-} = require('./website');
 
 async function getUserProfile(userId) {
     const profile = await Profile.find({

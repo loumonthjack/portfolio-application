@@ -2,7 +2,11 @@ const {
     Client,
     Environment
 } = require('square');
-const JSONBig = require('json-bigint')
+const JSONBig = require('json-bigint');
+const { uuid } = require('uuidv4');
+const { getPrice } = require('../../internal/price');
+const { getUser } = require('../../internal/user');
+const { createPayment } = require('../../internal/payment');
 const client = new Client({
     environment: Environment.Sandbox,
     accessToken: process.env.SQUARE_ACCESS_TOKEN
@@ -22,7 +26,9 @@ async function getAllCustomers() {
 async function getCustomer(userId) {
     try {
         const customers = await getAllCustomers();
-        return customers && customers.filter(result => result.reference_id.includes(userId)) && customers[0]
+        const customer = customers.filter(result => {return result.reference_id.includes(userId)})
+        if(customer.length = 1) return customer && customer[0]
+        else return 'Customer Does Not Exist in Square'
     } catch (err) {
         return err
     }
@@ -30,8 +36,9 @@ async function getCustomer(userId) {
 
 async function createCustomer(userId) {
     try {
+        const user = await getUser(userId);
         const customer = await getCustomer(userId)
-        if (customer) {
+        if ((customer != undefined) && (customer.reference_id == user[0].id)) {
             return JSONBig.parse(JSONBig.stringify(customer))
         } else {
             const newCustomer = await client.customersApi.createCustomer({
@@ -40,7 +47,7 @@ async function createCustomer(userId) {
                 emailAddress: `${user[0].email}`,
                 referenceId: `${userId}`
             })
-            return newCustomer.result.customer
+            return JSONBig.parse(JSONBig.stringify(newCustomer.result.customer))
         }
     } catch (err) {
         return err
@@ -63,8 +70,8 @@ async function getCustomerCard(userId) {
 async function createNewCustomerCard(userId, data) {
     try {
         const customer = await getCustomer(userId);
-        if (customer) {
-            const customerCards = await getCustomerCard(userId);
+        if (customer != undefined) {
+            const customerCards = await getCustomerCard(customer.reference_id);
             if (customerCards.length < 4) {
                 const newCustomerCard = await client.customersApi.createCustomerCard(customer.id, {
                     cardNonce: data.card_nonce,
@@ -78,7 +85,7 @@ async function createNewCustomerCard(userId, data) {
                     },
                     cardholderName: 'Amelia Earhart'
                 })
-                return newCustomerCard;
+                return JSONBig.parse(JSONBig.stringify(newCustomerCard));
             } else return 'Card Limit Reached. Please Delete Old Card!';
         } else {
             const createNewCustomer = await createCustomer(userId);
@@ -94,7 +101,7 @@ async function createNewCustomerCard(userId, data) {
                 },
                 cardholderName: 'Amelia Earhart'
             })
-            return newCustomerCard;
+            return JSONBig.parse(JSONBig.stringify(newCustomerCard));
         }
     } catch (err) {
         return err
@@ -106,21 +113,21 @@ async function disableCustomerCard(userId) {}
 async function getPriceTypes() {
     const response = await client.catalogApi.searchCatalogObjects({
         objectTypes: [
-            'ITEM'
+            'SUBSCRIPTION_PLAN'
         ]
     });
     const result = JSON.parse(response.body);
     return result.objects
 }
 
-async function getPlusPriceTypes() {
-    const response = await getPriceTypes();
-    return response && response.filter(result => result.item_data.name == 'Plus')
-}
-
-async function getPremiumPriceTypes() {
-    const response = await getPriceTypes();
-    return response && response.filter(result => result.item_data.name == 'Premium')
+async function deletePriceType() {
+    try {
+        const response = await client.catalogApi.deleteCatalogObject('');
+        console.log(response.result);
+        return response.result
+      } catch(error) {
+        console.log(error);
+      }
 }
 
 /*
@@ -128,39 +135,19 @@ async function createPriceType() {
     const newCatalog = await client.catalogApi.upsertCatalogObject({
         idempotencyKey: uuid(),
         object: {
-          type: 'ITEM',
-          id: "#premium",
-          itemData: {
-            name: 'Premium',
-            description: 'Premium Subcription Type',
-            abbreviation: 'PR',
-            variations: [
-              {
-                type: 'ITEM_VARIATION',
-                id: '#monthly',
-                itemVariationData: {
-                    itemId: "#premium",
-                    name: 'Monthly',
-                    pricingType: 'FIXED_PRICING',
-                    priceMoney: {
-                      amount: 6,
-                      currency: 'USD'
-                    }
-                  }
-              },
-              {
-                type: 'ITEM_VARIATION',
-                id: '#yearly',
-                itemVariationData: {
-                  itemId: "#premium",
-                  name: 'Yearly',
-                  pricingType: 'FIXED_PRICING',
-                  priceMoney: {
-                    amount: 50,
+          type: 'SUBSCRIPTION_PLAN',
+          id: "#plan",
+          subscriptionPlanData: {
+              name: 'Premium Yearly',
+              phases: [
+                {
+                  cadence: 'ANNUAL',
+                  periods: 5,
+                  recurringPriceMoney: {
+                    amount: 6000,
                     currency: 'USD'
                   }
                 }
-              }
             ]
           }
         }
@@ -169,18 +156,78 @@ async function createPriceType() {
 }
 */
 
+async function createSubscription(userId, data){
+    try {
+        const customer = await getCustomer(userId);
+        const customerCard = await getCustomerCard(userId);
+        const prices = await getPrice(data.access);
+        const price = prices.filter(result => result.type == data.type);
+        // Monthly Plus
+        const response = await client.subscriptionsApi.createSubscription({
+          idempotencyKey: uuid(),
+          locationId: 'LYJ2ZZXCZ1QZ0',
+          planId: price[0].CatalogId,
+          customerId: `${customer.id}`,
+          cardId: `${customerCard[0].id}`
+        });
+      
+        const result = JSONBig.parse(JSONBig.stringify(response))
+        if(result.statusCode == 200){ 
+            const payment =  await createPayment(userId, result.result.subscription);
+            return {subscription: result.result.subscription, paymentId: payment.id}
+        }else{
+            return result.status(400).json({message: "Could Not Process Payment"})
+        }
+      } catch(error) {
+        console.log(error);
+      }
 
+}
+
+async function cancelSubscription(subscriptionId){
+    try {
+        const response = await client.subscriptionsApi.cancelSubscription(subscriptionId);
+        const result = JSONBig.parse(JSONBig.stringify(response))
+        return result.result;
+      } catch(error) {
+        console.log(error);
+      }
+
+}
+async function getSubscriptions(userId){
+    try {
+        const customer = await getCustomer(userId);
+        const subscriptions = await client.subscriptionsApi.searchSubscriptions({
+            query: {
+              filter: {
+                customerIds: [
+                  `${customer.id}`
+                ],
+                locationIds: [
+                  'LYJ2ZZXCZ1QZ0'
+                ]
+              }
+            }
+          });
+          const response = JSONBig.parse(JSONBig.stringify(subscriptions))
+        return response.result;
+    } catch (error) {
+        return error
+    }
+}
 
 
 module.exports = {
     getAllCustomers,
     getPriceTypes,
-    getPlusPriceTypes,
-    getPremiumPriceTypes,
-    //  createPriceType,
+    //createPriceType,
+    deletePriceType,
     getCustomer,
     createCustomer,
     disableCustomerCard,
     createNewCustomerCard,
-    getCustomerCard
+    getCustomerCard,
+    createSubscription,
+    cancelSubscription,
+    getSubscriptions
 }

@@ -28,10 +28,6 @@ const PaymentSchema = new Schema({
   SubscriptionId: {
     type: String,
     required:true
-  },
-  CardId: {
-    type: String,
-    require:true
   }
 });
 

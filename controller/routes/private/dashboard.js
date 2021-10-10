@@ -8,6 +8,9 @@ const Profile = require('./../../functions/internal/profile');
 const Website = require('./../../functions/internal/website');
 const Square = require('../../functions/external/Square/index')
 const Price = require("./../../functions/internal/price");
+const Payment = require("./../../functions/internal/payment");
+const Amazon = require('../../functions/external/Amazon/index')
+
 
 // GET ALL USER PROJECTS, EDUCATIONS, EXPERIENCES, PROFILE
 router.get('/:user_id/', async (req, res) => {
@@ -295,30 +298,34 @@ router.get('/square/prices', async (req, res) => {
     }
 })
 
-router.get('/square/price/plus', async (req, res) => {
-    try {
-        const catalogs = await Square.getPlusPriceTypes();
-        return res.send(catalogs[0].item_data);
-    } catch (err) {
-        return console.log(err)
-    }
-})
-
-router.get('/square/price/premium', async (req, res) => {
-    try {
-        const catalogs = await Square.getPremiumPriceTypes();
-        return res.send(catalogs[0].item_data);
-    } catch (err) {
-        return console.log(err)
-    }
-})
-
-/**
+/*
 router.post('/square/price', async(req, res) => {
     const catalogs = await Square.createPriceType();
     return res.send(catalogs);
 })
- */
+*/
+
+router.delete('/square/price', async(req, res) => {
+    const catalogs = await Square.deletePriceType();
+    return res.send(catalogs);
+})
+
+router.post('/square/:user_id/subscription', async(req, res) => {
+    const user = req.params.user_id;
+    const subscription = await Square.createSubscription(user, req.body);
+    return res.send(subscription);
+})
+router.put('/square/:user_id/subscription/:subscription_id', async(req, res) => {
+    const subscriptionId = req.params.subscription_id;
+    const subscription = await Square.cancelSubscription(subscriptionId);
+    return res.send(subscription);
+})
+
+router.get('/square/:user_id/subscriptions', async(req, res) => {
+    const user = req.params.user_id;
+    const subscriptions = await Square.getSubscriptions(user);
+    return res.send(subscriptions);
+})
 
 router.get('/portfolio/prices', async (req, res) => {
     try {
@@ -331,10 +338,10 @@ router.get('/portfolio/prices', async (req, res) => {
     }
 })
 
-router.get('/portfolio/:price_id/price', async (req, res) => {
+router.get('/portfolio/prices/:type', async (req, res) => {
     try {
-        const priceId = req.params.price_id;
-        const prices = await Price.getPrice(priceId);
+        const type = req.params.type;
+        const prices = await Price.getPrice(type);
         return res.send({
             price: prices
         })
@@ -343,11 +350,163 @@ router.get('/portfolio/:price_id/price', async (req, res) => {
     }
 })
 
+router.delete('/portfolio/:price_id/price', async (req, res) => {
+    try {
+        const priceId = req.params.price_id;
+        const prices = await Price.deletePrice(priceId);
+        return res.send(prices)
+    } catch (err) {
+        return console.log(err)
+    }
+});
+
 router.post('/portfolio/price', async (req, res) => {
     try {
         const newPrice = await Price.createPrice();
         return res.send(newPrice)
     } catch (err) {
+        return console.log(err)
+    }
+});
+router.get('/:user_id/payments', async(req, res) => {
+    try {
+        const userId = req.params.user_id;
+        const payments = await Payment.getUserPayments(userId);
+        return res.send({payments: payments})
+    } catch (err) {
+        return console.log(err)
+    }
+});
+router.get('/:user_id/payment/:payment_id', async(req, res) => {
+    try {
+        const paymentId = req.params.payment_id;
+        const payments = await Payment.getPayment(paymentId);
+        return res.send(payments)
+    } catch (err) {
+        return console.log(err)
+    }
+});
+router.post('/:user_id/payment', async(req, res)=>{
+    try{
+        const userId = req.params.user_id;
+        const subscription = await Square.createSubscription(userId, req.body);
+        const payment = await Payment.getPayment(subscription.paymentId);
+        return res.send({payment: payment[0]})
+    }catch(err){
+        return console.log(err)
+    }
+})
+
+router.get('/s3/buckets', async(req, res) => {
+    try{
+        Amazon.s3Client.listBuckets(function(err, data) {
+            if (err) return res.send(err), err.stack; // an error occurred
+            else res.send(data.Buckets);           // successful response
+       })
+    }
+    catch(err){
+        return console.log(err)
+    }
+})
+
+router.get('/s3/:user_id/bucket', async(req, res) => {
+    try{
+        const userId = req.params.user_id;
+        Amazon.s3Client.listBuckets(function(err, data) {
+            if (err) return res.send(err), err.stack; // an error occurred
+            else res.send({
+                Bucket: data.Buckets.filter(result=> result.Name.includes(`${userId}`))[0]
+            });           // successful response
+       })
+    }
+    catch(err){
+        return console.log(err)
+    }
+});
+
+router.post('/s3/new/:user_id/bucket', async(req, res) => {
+    try{
+        const userId = req.params.user_id;
+        bucketParams = {
+            Bucket: `${userId}`, 
+            CreateBucketConfiguration: {
+                LocationConstraint: "us-west-2"
+            }
+        };
+        Amazon.s3Client.createBucket(bucketParams, function(err, data) {
+            if (err) return res.send(err.stack); // an error occurred
+            else return res.send(data)
+        });
+    }
+    catch(err){
+        return console.log(err)
+    }
+});
+
+router.post('/s3/:user_id/bucket/configure', async(req, res) => {
+    try{
+        const userId = req.params.user_id;
+        hostingParams = {
+            Bucket: `${userId}`, 
+            WebsiteConfiguration: {
+                ErrorDocument: {
+                    Key: 'error.html'
+                },
+                IndexDocument: {
+                    Suffix: 'index.html'
+                },
+            }
+        };
+        Amazon.s3Client.putBucketWebsite(hostingParams, function(err, data) {
+            if (err)  return res.send(err.stack); // an error occurred
+            else     return res.send(data);           // successful response
+        });
+    }
+    catch(err){
+        return console.log(err)
+    }
+});
+
+router.post('/s3/:user_id/bucket/policy', async(req, res) => {
+    try{
+        const userId = req.params.user_id;
+        policyParams = {
+            Version: "2012-10-17",
+            Statement: [{
+                Sid: "PublicReadGetObject",
+                Effect: "Allow",
+                Principal: "*",
+                Action: "s3:GetObject",
+                Resource: `arn:aws:s3:::${userId}/*`
+            }]
+        };
+        // Name and Policy of Bucket 
+        bucketPolicyParams = {
+            Bucket: `${userId}`,
+            Policy: JSON.stringify(policyParams)
+        };
+        Amazon.s3Client.putBucketPolicy(bucketPolicyParams, function(err, data) {
+            if (err) return res.send(err.stack); // an error occurred
+            else     return res.send(data);           // successful response
+        });
+    }
+    catch(err){
+        return console.log(err)
+    }
+});
+
+router.get('/s3/:user_id/objects', async(req, res) => {
+    try{
+        const userId = req.params.user_id;
+        objectParams = {
+            Bucket: `${userId}`
+        };
+        Amazon.s3Client.listObjects(objectParams, function(err, data) {
+            if (err) return res.send(err), err.stack; // an error occurred
+            else res.send({Objects: data.Contents.map(result => {return {Name: result.Key, Size: result.Size}})});           // successful response
+       })
+    }
+    catch(err){
         return console.log(err)
     }
 })
