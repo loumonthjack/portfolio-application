@@ -1,7 +1,11 @@
 # portfolio-application
 NODE.JS -- EXPRESS
+You will need: SQUARE ACCOUNT, AMAZON WEB SERVICES ACCOUNT
 
-This project is a backend of a application that allows the user to import resume then transform into a s3 hosting bucket website.
+.ENV VARIABLES: 
+MONGO_DB_SECRET_KEY, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SQUARE_ACCESS_TOKEN
+
+This project is a backend portion of a application that allows the user to import resume then transform into a s3 hosting bucket website.
 
 MODELS:
 
