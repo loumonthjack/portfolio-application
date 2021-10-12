@@ -76,14 +76,13 @@ async function createNewCustomerCard(userId, data) {
                 const newCustomerCard = await client.customersApi.createCustomerCard(customer.id, {
                     cardNonce: data.card_nonce,
                     billingAddress: {
-                        addressLine1: '500 Electric Ave',
-                        addressLine2: 'Suite 600',
-                        locality: 'New York',
-                        administrativeDistrictLevel1: 'NY',
-                        postalCode: '12345',
-                        country: 'US'
+                        addressLine1: data.addressLine1,
+                        addressLine2: data.addressLine2,
+                        locality: data.state,
+                        postalCode: data.zipCode,
+                        country: data.country
                     },
-                    cardholderName: 'Amelia Earhart'
+                    cardholderName: data.cardholder
                 })
                 return JSONBig.parse(JSONBig.stringify(newCustomerCard));
             } else return 'Card Limit Reached. Please Delete Old Card!';
@@ -92,14 +91,13 @@ async function createNewCustomerCard(userId, data) {
             const newCustomerCard = await client.customersApi.createCustomerCard(createNewCustomer.id, {
                 cardNonce: data.card_nonce,
                 billingAddress: {
-                    addressLine1: '500 Electric Ave',
-                    addressLine2: 'Suite 600',
-                    locality: 'New York',
-                    administrativeDistrictLevel1: 'NY',
-                    postalCode: '12345',
-                    country: 'US'
+                    addressLine1: data.addressLine1,
+                    addressLine2: data.addressLine2,
+                    locality: data.state,
+                    postalCode: data.zipCode,
+                    country: data.country
                 },
-                cardholderName: 'Amelia Earhart'
+                cardholderName: data.cardholder
             })
             return JSONBig.parse(JSONBig.stringify(newCustomerCard));
         }

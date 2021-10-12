@@ -24,6 +24,7 @@ async function getPriceByCatalogId(CatalogId) {
     return price && price[0];
 }
 
+/*
 async function createPrice() {
     // 'plus' or 'premium'
     
@@ -35,6 +36,7 @@ async function createPrice() {
     
     return [newPrice];
 }
+*/
 
 async function deletePrice(priceId) {
     try {
@@ -51,6 +53,6 @@ module.exports = {
     getPrices,
     getPrice,
     getPriceByCatalogId,
-    createPrice,
+    //createPrice,
     deletePrice
 }

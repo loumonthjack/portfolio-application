@@ -73,7 +73,7 @@ app.use("/home", landingApi)
 app.use("/portfolio", viewerApi)
 
 function authorizeToken(req, res, next) {
-  const header = req.headers['authorization'].split(' ')
+  const header = req.headers['authorization'] && req.headers['authorization'].split(' ')
   const authorized = req.headers && req.headers['authorization'] && header[1]
   if (authorized) {
     next()
@@ -84,7 +84,7 @@ function authorizeToken(req, res, next) {
   }
 }
 // Private Routes
-app.use('/dashboard', dashboardApi);
+app.use('/dashboard', authorizeToken, dashboardApi);
 //app.use('/profile', profileApi);
 //app.use('/resume', resumeApi);
 //app.use('/billing', billingApi);
