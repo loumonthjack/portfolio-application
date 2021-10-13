@@ -10,8 +10,7 @@ const landingApi = require('./controller/routes/public/landingPage');
 const loginApi = require('./controller/routes/public/login');
 const registerApi = require('./controller/routes/public/register');
 const dashboardApi = require('./controller/routes/private/dashboard');
-//const profileApi = require('./controller/routes/private/profile');
-//const billingApi = require('./controller/routes/private/billing');
+const billingApi = require('./controller/routes/private/billing');
 const resumeApi = require('./controller/routes/private/resume');
 const logoutApi = require('./controller/routes/private/logout');
 const app = express();
@@ -73,7 +72,7 @@ app.use("/home", landingApi)
 app.use("/portfolio", viewerApi)
 
 function authorizeToken(req, res, next) {
-  const header = req.headers['authorization'] && req.headers['authorization'].split(' ')
+  const header = req.headers['authorization'] && req.headers['authorization'].split(' ');
   const authorized = req.headers && req.headers['authorization'] && header[1]
   if (authorized) {
     next()
@@ -84,10 +83,9 @@ function authorizeToken(req, res, next) {
   }
 }
 // Private Routes
-app.use('/dashboard', authorizeToken, dashboardApi);
-//app.use('/profile', profileApi);
-//app.use('/resume', resumeApi);
-//app.use('/billing', billingApi);
+app.use('/dashboard', dashboardApi);
+app.use('/resume', resumeApi);
+app.use('/billing', billingApi);
 app.use('/logout', logoutApi);
 
 // RUN SERVER //
