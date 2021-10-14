@@ -3,13 +3,15 @@ const User = require("../../../models/User");
 // FUNCTIONS
 async function getAllUsers() {
     const user = await User.find()
-    return user.map(result => {return {
-        id: result._id,
-        firstName: result.firstName,
-        lastName: result.lastName,
-        email: result.email,
-        role: result.role
-    }})
+    return user.map(result => {
+        return {
+            id: result._id,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            email: result.email,
+            role: result.role
+        }
+    })
 }
 async function getUser(userId) {
     const user = await User.find({
@@ -28,11 +30,23 @@ async function getUserRole(userId) {
     const admin = await User.findOne({
         _id: userId
     });
-    return admin.role;
+    return admin;
+}
+
+async function updateUserRole(userId, priceAccess) {
+    const user = await User.updateOne({
+        _id: userId
+    }, {
+        $set: {
+            role: priceAccess
+        }
+    });
+    return user;
 }
 
 module.exports = {
     getUser,
     getUserRole,
-    getAllUsers
+    getAllUsers,
+    updateUserRole
 }

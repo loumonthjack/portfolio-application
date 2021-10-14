@@ -32,8 +32,6 @@ async function getUserProjects(userId) {
 }
 
 async function createUserProject(userId, data) {
-    const userType = await getUserRole(userId);
-    console.log(userType)
     const project = await Project.create({
         title: data.title,
         description: data.description,
@@ -55,6 +53,17 @@ async function deleteUserProject(projectId) {
         return err
     }
 }
+async function deleteUserProjects(projects) {
+    try {
+        
+        return Project.deleteMany({
+            _id: projects
+        });
+    
+    } catch (err) {
+        return err
+    }
+}
 async function updateUserProject(userId, data) {}
 
 module.exports = {
@@ -63,5 +72,6 @@ module.exports = {
     getUserProjects,
     createUserProject,
     deleteUserProject,
+    deleteUserProjects,
     updateUserProject
 }

@@ -83,7 +83,7 @@ function authorizeToken(req, res, next) {
   }
 }
 // Private Routes
-app.use('/dashboard', dashboardApi);
+app.use('/dashboard', authorizeToken, dashboardApi);
 app.use('/resume', resumeApi);
 app.use('/billing', billingApi);
 app.use('/logout', logoutApi);

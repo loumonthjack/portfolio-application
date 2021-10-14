@@ -4,7 +4,7 @@ const {
 } = require('square');
 const JSONBig = require('json-bigint');
 const { uuid } = require('uuidv4');
-const { getPrice } = require('../../internal/price');
+const { getPriceByType } = require('../../internal/price');
 const { getUser } = require('../../internal/user');
 const { createPayment } = require('../../internal/payment');
 const client = new Client({
@@ -158,7 +158,7 @@ async function createSubscription(userId, data){
     try {
         const customer = await getCustomer(userId);
         const customerCard = await getCustomerCard(userId);
-        const prices = await getPrice(data.access);
+        const prices = await getPriceByType(data.access);
         const price = prices.filter(result => result.type == data.type);
         // Monthly Plus
         const response = await client.subscriptionsApi.createSubscription({

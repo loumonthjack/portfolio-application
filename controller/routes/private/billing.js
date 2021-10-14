@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("./../../functions/internal/user");
+const { getUser, updateUserRole }= require("../../functions/internal/user");
 const Square = require('../../functions/external/Square/index')
 const Price = require("./../../functions/internal/price");
 const Payment = require("./../../functions/internal/payment");
@@ -77,7 +77,7 @@ router.post('/:user_id/customer/card', async (req, res) => {
 
 router.get('/square/prices', async (req, res) => {
     try {
-        const catalogs = await Square.getPriceTypes();
+        const catalogs = await Square.getPriceByTypeTypes();
         logEvent(req, res);
         return res.send(catalogs);
     } catch (err) {
@@ -167,7 +167,7 @@ router.get('/portfolio/prices', async (req, res) => {
 router.get('/prices/:type', async (req, res) => {
     try {
         const type = req.params.type;
-        const prices = await Price.getPrice(type);
+        const prices = await Price.getPriceByType(type);
         logEvent(req, res);
         return res.send({
             price: prices
@@ -209,8 +209,6 @@ router.post('/price', async (req, res) => {
 router.get('/:user_id/payments', async (req, res) => {
     try {
         const userId = req.params.user_id;
-        const getUser = await User.getAllUsers();
-        console.log(getUser);
         const payments = await Payment.getUserPayments(userId);
         logEvent(req, res);
         return res.send({
@@ -226,9 +224,9 @@ router.get('/:user_id/payments', async (req, res) => {
 router.get('/:user_id/payment/:payment_id', async (req, res) => {
     try {
         const paymentId = req.params.payment_id;
-        const payments = await Payment.getPayment(paymentId);
+        const payment = await Payment.getPayment(paymentId);
         logEvent(req, res);
-        return res.send(payments)
+        return res.send(payment[0])
     } catch (err) {
         logEvent(req, res, err);
         return res.status(400).json({
@@ -242,6 +240,9 @@ router.post('/:user_id/payment', async (req, res) => {
         const userId = req.params.user_id;
         const subscription = await Square.createSubscription(userId, req.body);
         const payment = await Payment.getPayment(subscription.paymentId);
+        const price = await Price.getPriceById(payment[0].priceId)
+        const userRole = await getUser(userId)
+        (userRole.role != price.access) && await updateUserRole(userId, price.access) 
         logEvent(req, res);
         return res.send({
             payment: payment[0]

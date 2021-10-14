@@ -29,13 +29,13 @@ router.post("/", (req, res) => {
     User.findOne({ email }).then(user => {
       // Check if user exists
       if (!user) {
-        return res.status(404).json({ emailnotfound: "Email not found" });
+        return res.status(400).json({ message: "Email not found" });
       }
       // Check password
       bcrypt.compare(password, user.password).then(isMatch => {
         if (isMatch) {
           // User matched
-          // Create JWT Payload yb               h bcc
+          // Create JWT Payload 
           const payload = {
             id: user.id,
             name: user.name
@@ -58,7 +58,7 @@ router.post("/", (req, res) => {
         } else {
           return res
             .status(400)
-            .json({ passwordincorrect: "Password incorrect" });
+            .json({ message: "Password incorrect" });
         }
       });
     });

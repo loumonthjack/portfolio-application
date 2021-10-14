@@ -4,7 +4,7 @@ async function getPrices() {
     const prices = await Price.find();
     return prices;
 }
-async function getPrice(type) {
+async function getPriceByType(type) {
     const price = await Price.find({
         type: type
     });
@@ -23,7 +23,12 @@ async function getPriceByCatalogId(CatalogId) {
     });
     return price && price[0];
 }
-
+async function getPriceById(priceId) {
+    const price = await Price.find({
+        _id: priceId
+    });
+    return price && price[0];
+}
 /*
 async function createPrice() {
     // 'plus' or 'premium'
@@ -51,7 +56,8 @@ async function deletePrice(priceId) {
 
 module.exports = {
     getPrices,
-    getPrice,
+    getPriceByType,
+    getPriceById,
     getPriceByCatalogId,
     //createPrice,
     deletePrice
