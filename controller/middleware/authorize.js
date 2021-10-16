@@ -1,10 +1,6 @@
+const { getSessionByToken, deleteExpiredSessions } = require('../functions/internal/session');
+const { logEvent } = require('../logger');
 
-const {
-  getSessionByToken, deleteExpiredSessions
-} = require('../functions/internal/session');
-const {
-  logEvent
-} = require('../logger')
 function authorizeToken(req, res, next) {
     const header = req.headers['authorization'] && req.headers['authorization'].split(' ');
     if (header) {
@@ -36,6 +32,4 @@ function authorizeToken(req, res, next) {
     setTimeout(deleteExpiredSessions, 12000000);
   }
 
-  module.exports = {
-    authorizeToken
-  }
+module.exports = { authorizeToken }

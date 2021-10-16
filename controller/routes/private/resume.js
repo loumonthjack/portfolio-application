@@ -12,12 +12,8 @@
 // RETURN S3URL TO WEBSITE
 const express = require("express");
 const router = express.Router();
-const {
-    s3Client
-} = require('./../../functions/external/Amazon/index');
-const {
-    logEvent
-} = require("./../../logger");
+const { s3Client } = require('./../../functions/external/Amazon/index');
+const { logEvent } = require("./../../logger");
 const axios = require('axios');
 
 router.get('/s3/buckets', async (req, res) => {

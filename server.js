@@ -12,7 +12,7 @@ const registerApi = require('./controller/routes/public/register');
 const dashboardApi = require('./controller/routes/private/dashboard');
 const billingApi = require('./controller/routes/private/billing');
 const resumeApi = require('./controller/routes/private/resume');
-const { authorizeToken } = require('./controller/routes/authorize')
+const { authorizeToken } = require('./controller/middleware/authorize')
 const app = express();
 
 // Bodyparser middleware

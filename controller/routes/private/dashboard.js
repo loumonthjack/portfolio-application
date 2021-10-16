@@ -6,80 +6,9 @@ const Experience = require('./../../functions/internal/experience');
 const Education = require('./../../functions/internal/education');
 const Profile = require('./../../functions/internal/profile');
 const Website = require('./../../functions/internal/website');
-const {
-    getPriceById
-} = require('./../../functions/internal/price')
-const {
-    getUserPayments
-} = require('./../../functions/internal/payment')
-const {
-    logEvent
-} = require("./../../logger");
-const {
-    updateUserRole,
-    getUser
-} = require("../../functions/internal/user");
-const { deleteUserSessions } = require("../../functions/internal/session");
-const {
-    _
-} = require('lodash')
-
-const updateAccess = (req, res, next) => {
-    const userId = req.params.user_id;
-    getUser(userId).then(user => {
-        if (user.role == 'basic') // upgrade access
-            getUserPayments(user.id).then(userPayments => {
-                const noPayments = _.isEmpty(userPayments);
-                if (noPayments == true) {
-                    return
-                }
-                const lastPayment = userPayments.slice(-1)[0]
-                lastPayment && getPriceById(lastPayment.priceId).then(payment => {
-                    const lastPaymentDate = lastPayment.payment_date.getTime();
-                    const today = new Date().getTime();
-                    const diffDays = (date, otherDate) => Math.ceil(Math.abs(date - otherDate) / (1000 * 60 * 60 * 24));
-                    const expiration = diffDays(today, lastPaymentDate);
-                    const monthExpired = (expiration > 31);
-                    const yearExpired = (expiration > 366);
-                    if (payment.type == "monthly") {
-                        (monthExpired == false) && updateUserRole(user.id, payment.access).then(result => {
-                            return
-                        });
-                    } else if (payment.type == "yearly") {
-                        (yearExpired == false) && updateUserRole(user.id, payment.access).then(result => {
-                            return
-                        });
-                    };
-                });
-            });
-        else // downgrade access
-            getUserPayments(userId).then(userPayments => {
-                const noPayments = _.isEmpty(userPayments);
-                if (noPayments == true) {
-                    return
-                }
-                const lastPayment = userPayments.slice(-1)[0];
-                lastPayment && getPriceById(lastPayment.priceId).then(payment => {
-                    const lastPaymentDate = lastPayment.payment_date.getTime();
-                    const today = new Date().getTime();
-                    const diffDays = (date, otherDate) => Math.ceil(Math.abs(date - otherDate) / (1000 * 60 * 60 * 24));
-                    const expiration = diffDays(today, lastPaymentDate);
-                    const monthExpired = (expiration > 31);
-                    const yearExpired = (expiration > 366);
-                    if (payment.type == "monthly") {
-                        (monthExpired == true) && updateUserRole(user.id, 'basic').then(result => {
-                            return
-                        })
-                    } else if (payment.type == "yearly") {
-                        (yearExpired == true) && updateUserRole(user.id, 'basic').then(result => {
-                            return
-                        })
-                    }
-                });
-            });
-    });
-    next()
-}
+const Session = require("../../functions/internal/session");
+const { logEvent } = require("./../../logger");
+const { updateAccess } = require('../../middleware/updateAccess');
 
 // GET ALL USER PROJECTS, EDUCATIONS, EXPERIENCES, PROFILE
 router.get('/:user_id/', updateAccess, async (req, res) => {
@@ -104,10 +33,18 @@ router.get('/:user_id/', updateAccess, async (req, res) => {
     }
 });
 
-router.get('/project/:project_id', async (req, res) => {
+router.get('/:user_id/project/:project_id', async (req, res) => {
     try {
+        const user = req.params.user_id;
         const projectId = req.params.project_id;
         const project = await Project.getProject(projectId);
+        if (user != project.userId) {
+            const errorMessage = 'Not authorized to view this Project!'
+            logEvent(req, res, errorMessage);
+            return res.status(400).json({
+                message: errorMessage
+            })
+        }
         logEvent(req, res);
         return res.send({
             project: project
@@ -180,10 +117,18 @@ router.delete('/:user_id/projects', async (req, res) => {
         })
     }
 })
-router.get('/school/:school_id', async (req, res) => {
+router.get('/:user_id/school/:school_id', async (req, res) => {
     try {
+        const user = req.params.user_id;
         const schoolId = req.params.school_id;
         const school = await Education.getEducation(schoolId);
+        if (user != school.userId) {
+            const errorMessage = 'Not authorized to view this School!'
+            logEvent(req, res, errorMessage);
+            return res.status(400).json({
+                message: errorMessage
+            })
+        }
         logEvent(req, res);
         return res.send({
             school: school
@@ -248,6 +193,13 @@ router.get('/:user_id/experience/:experience_id', async (req, res) => {
         const user = req.params.user_id;
         const experienceId = req.params.experience_id;
         const experience = await Experience.getExperience(experienceId);
+        if (user != experience.userId) {
+            const errorMessage = 'Not authorized to view this Work Experience'
+            logEvent(req, res, errorMessage);
+            return res.status(400).json({
+                message: errorMessage
+            })
+        }
         logEvent(req, res);
         return res.send({
             experience: experience
@@ -414,18 +366,18 @@ router.post('/log/:user_id/event', async (req, res) => {
 
 });
 
-router.get('/:user_id/logout',async (req,res) => {
-    try{
+router.get('/:user_id/logout', async (req, res) => {
+    try {
         const user = req.params.user_id;
-        const deleteSession = await deleteUserSessions(user);
+        const deleteSession = await Session.deleteUserSessions(user);
         req.session.destroy();
         logEvent(req, res)
         res.redirect('http://localhost:5000/home');
-    }catch(err){
+    } catch (err) {
         logEvent(req, res, err);
         return res.status(400).json({
             message: err
         })
     }
-    });
+});
 module.exports = router;

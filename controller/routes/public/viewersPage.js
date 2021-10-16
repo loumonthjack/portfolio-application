@@ -7,13 +7,12 @@ const Website = require("../../functions/internal/website");
 // @description GET
 // @access Public
 router.get('/', async (req, res) => {
-  try{
+  try {
     const portfolio = await Website.getWebsiteByUrl(req.get('origin'))
     return res.send({
       portfolio: portfolio
     })
-  }
-  catch(err){
+  } catch (err) {
     return res.status(400).json(err)
   }
 });

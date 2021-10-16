@@ -3,13 +3,13 @@ const express = require("express");
 const router = express.Router();
 const Price = require('./../../functions/internal/price');
 
-router.get('/', async(req, res)=>{
-    try{
+router.get('/', async (req, res) => {
+    try {
         const prices = await Price.getPrices();
         res.send({
             prices: prices
         })
-    }catch(err){
+    } catch (err) {
         return err
     }
 })

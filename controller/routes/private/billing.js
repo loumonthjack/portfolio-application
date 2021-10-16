@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { getUser, updateUserRole }= require("../../functions/internal/user");
+const { getUser, updateUserRole } = require("../../functions/internal/user");
 const Square = require('../../functions/external/Square/index')
 const Price = require("./../../functions/internal/price");
 const Payment = require("./../../functions/internal/payment");
-const {
-    logEvent
-} = require("./../../logger");
+const { logEvent } = require("./../../logger");
 
 router.get('/square/customers', async (req, res) => {
     try {
@@ -149,7 +147,7 @@ router.get('/square/:user_id/subscriptions', async (req, res) => {
     }
 })
 
-router.get('/portfolio/prices', async (req, res) => {
+router.get('/:user_id/portfolio/prices', async (req, res) => {
     try {
         const allPrices = await Price.getPrices();
         logEvent(req, res);
@@ -164,7 +162,7 @@ router.get('/portfolio/prices', async (req, res) => {
     }
 })
 
-router.get('/prices/:type', async (req, res) => {
+router.get('/:user_id/prices/:type', async (req, res) => {
     try {
         const type = req.params.type;
         const prices = await Price.getPriceByType(type);
@@ -223,8 +221,16 @@ router.get('/:user_id/payments', async (req, res) => {
 });
 router.get('/:user_id/payment/:payment_id', async (req, res) => {
     try {
+        const user = req.params.user_id;
         const paymentId = req.params.payment_id;
         const payment = await Payment.getPayment(paymentId);
+        if (user != payment[0].userId) {
+            const errorMessage = 'Not authorized to view this Payment'
+            logEvent(req, res, errorMessage);
+            return res.status(400).json({
+                message: errorMessage
+            })
+        }
         logEvent(req, res);
         return res.send(payment[0])
     } catch (err) {
@@ -242,7 +248,9 @@ router.post('/:user_id/payment', async (req, res) => {
         const payment = await Payment.getPayment(subscription.paymentId);
         const price = await Price.getPriceById(payment[0].priceId)
         const userRole = await getUser(userId)
-        if(userRole.role != price.access){ const updateUser = await updateUserRole(userId, price.access);}
+        if (userRole.role != price.access) {
+            const updateUser = await updateUserRole(userId, price.access);
+        }
         logEvent(req, res);
         return res.send({
             payment: payment[0]
