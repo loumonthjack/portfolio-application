@@ -5,6 +5,9 @@ const passport = require("passport");
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
 const session = require('express-session');
+const app = express();
+
+// Routes
 const viewerApi = require('./controller/routes/public/viewersPage');
 const landingApi = require('./controller/routes/public/landingPage');
 const loginApi = require('./controller/routes/public/login');
@@ -13,7 +16,6 @@ const dashboardApi = require('./controller/routes/private/dashboard');
 const billingApi = require('./controller/routes/private/billing');
 const resumeApi = require('./controller/routes/private/resume');
 const { authorizeToken } = require('./controller/middleware/authorize')
-const app = express();
 
 // Bodyparser middleware
 app.use(cors({
