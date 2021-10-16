@@ -12,7 +12,7 @@ const registerApi = require('./controller/routes/public/register');
 const dashboardApi = require('./controller/routes/private/dashboard');
 const billingApi = require('./controller/routes/private/billing');
 const resumeApi = require('./controller/routes/private/resume');
-const logoutApi = require('./controller/routes/private/logout');
+const { authorizeToken } = require('./controller/routes/authorize')
 const app = express();
 
 // Bodyparser middleware
@@ -24,6 +24,7 @@ app.use(cors({
 
 // DB Config
 const db = require("./config/keys").mongoURI;
+const { uuid } = require("uuidv4");
 
 // Connect to MongoDB
 mongoose
@@ -38,10 +39,10 @@ mongoose
   .catch(err => console.log(err));
 
 // Passport middleware
-const oneDay = 1000 * 60 * 60 * 24;
+const oneDay = 3600000;
 app.use(
   session({
-    secret: 'dsafiu6l4iw7toglejhsdfvfa',
+    secret: uuid(),
     name: "session-cookie",
     resave: true,
     saveUninitialized: true,
@@ -60,7 +61,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session())
-
 // Passport config
 require("./config/passport")(passport);
 app.use(cookieParser());
@@ -71,22 +71,10 @@ app.use("/register", registerApi);
 app.use("/home", landingApi)
 app.use("/portfolio", viewerApi)
 
-function authorizeToken(req, res, next) {
-  const header = req.headers['authorization'] && req.headers['authorization'].split(' ');
-  const authorized = req.headers && req.headers['authorization'] && header[1]
-  if (authorized) {
-    next()
-  } else {
-    res.status(400).json({
-      message: "Not Authorized. Try Logging In.."
-    })
-  }
-}
 // Private Routes
 app.use('/dashboard', authorizeToken, dashboardApi);
-app.use('/resume', resumeApi);
-app.use('/billing', billingApi);
-app.use('/logout', logoutApi);
+app.use('/resume', authorizeToken, resumeApi);
+app.use('/billing', authorizeToken, billingApi);
 
 // RUN SERVER //
 const port = process.env.PORT || 5000;

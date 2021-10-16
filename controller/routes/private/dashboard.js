@@ -19,6 +19,7 @@ const {
     updateUserRole,
     getUser
 } = require("../../functions/internal/user");
+const { deleteUserSessions } = require("../../functions/internal/session");
 const {
     _
 } = require('lodash')
@@ -28,7 +29,8 @@ const updateAccess = (req, res, next) => {
     getUser(userId).then(user => {
         if (user.role == 'basic') // upgrade access
             getUserPayments(user.id).then(userPayments => {
-                if (_.isEmpty(userPayments) == true) {
+                const noPayments = _.isEmpty(userPayments);
+                if (noPayments == true) {
                     return
                 }
                 const lastPayment = userPayments.slice(-1)[0]
@@ -52,7 +54,8 @@ const updateAccess = (req, res, next) => {
             });
         else // downgrade access
             getUserPayments(userId).then(userPayments => {
-                if (_.isEmpty(userPayments) == true) {
+                const noPayments = _.isEmpty(userPayments);
+                if (noPayments == true) {
                     return
                 }
                 const lastPayment = userPayments.slice(-1)[0];
@@ -410,4 +413,19 @@ router.post('/log/:user_id/event', async (req, res) => {
     }
 
 });
+
+router.get('/:user_id/logout',async (req,res) => {
+    try{
+        const user = req.params.user_id;
+        const deleteSession = await deleteUserSessions(user);
+        req.session.destroy();
+        logEvent(req, res)
+        res.redirect('http://localhost:5000/home');
+    }catch(err){
+        logEvent(req, res, err);
+        return res.status(400).json({
+            message: err
+        })
+    }
+    });
 module.exports = router;

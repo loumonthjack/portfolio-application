@@ -1,6 +1,25 @@
 const { cloudWatchClient } = require('./functions/external/Amazon/index');
 const { _ } = require('lodash')
 
+function createStream(){
+    const month = new Date().getMonth() + 1;
+    const day = new Date().getDate();
+    const year = new Date().getFullYear();
+    const date = `${month}-${day}-${year}`;
+    const getParams = {
+        logStreamName: `${date}`,
+        logGroupName: 'application'
+    }
+    const stream = () => cloudWatchClient.createLogStream(getParams, function (err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else {
+            return data
+        };
+    });
+    return stream()
+
+};
+
 getParams = {
     logGroupName: 'application'
 };
@@ -34,13 +53,21 @@ const logEvent = (request, response, error) => cloudWatchClient.describeLogStrea
     };
     else {
         const streamData = data.logStreams.filter(result => result.logStreamName.includes(date));
-        if (streamData.length == 0) return {
-            message: 'Log Stream has not been created yet!'
+        if (streamData.length == 0) { 
+            createStream();
+            const putLogs = () => cloudWatchClient.putLogEvents(params, function (err, data) {
+                if (err) {
+                    return {
+                        message: err.stack
+                    }; // an error occurred
+                } else return data; // successful response
+            })
+            setTimeout(putLogs, 2000)
         };
-        putParams = streamData[0].uploadSequenceToken ? {
+        putParams = (streamData[0] && streamData[0].uploadSequenceToken && {
             ...params,
             sequenceToken: `${streamData[0].uploadSequenceToken}`
-        } : params;
+        });
         cloudWatchClient.putLogEvents(putParams, function (err, data) {
             if (err) {
                 return {

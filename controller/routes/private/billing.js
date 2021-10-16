@@ -242,7 +242,7 @@ router.post('/:user_id/payment', async (req, res) => {
         const payment = await Payment.getPayment(subscription.paymentId);
         const price = await Price.getPriceById(payment[0].priceId)
         const userRole = await getUser(userId)
-        (userRole.role != price.access) && await updateUserRole(userId, price.access) 
+        if(userRole.role != price.access){ const updateUser = await updateUserRole(userId, price.access);}
         logEvent(req, res);
         return res.send({
             payment: payment[0]

@@ -16,26 +16,6 @@ const route53Client = new AWS.Route53Domains({
     region: 'us-west-2'
 });
 
-const createStream = () => {
-    const month = new Date().getMonth() + 1;
-    const day = new Date().getDate();
-    const year = new Date().getFullYear();
-    const date = `${month}-${day}-${year}`;
-    const getParams = {
-        logStreamName: `${date}`,
-        logGroupName: 'application'
-    }
-    cloudWatchClient.createLogStream(getParams, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else {
-            console.log(data);
-            return data
-        };
-    });
-
-};
-const every24hrs = () => setInterval(createStream, 1000 * 60 * 60 * 24);
-every24hrs();
 module.exports = {
     s3Client,
     cloudWatchClient,

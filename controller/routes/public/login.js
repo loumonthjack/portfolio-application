@@ -9,6 +9,7 @@ const validateLoginInput = require("../../../validation/login");
 
 // Load User Model
 const User = require("../../../models/User");
+const { createUserSession } = require("../../functions/internal/session");
 
 // @route POST user/login
 // @desc Login User & Return JWT token
@@ -45,21 +46,29 @@ router.post("/", (req, res) => {
             payload,
             keys.secretOrKey,
             {
-              expiresIn: 1800 // 1 year in seconds
+              expiresIn: 1800 
             },
             (err, token) => {
-              res.json({
-                success: true,
-                token: "Bearer " + token,
-                id: user._id
-              });
+              createUserSession(user._id, token).then(session => {
+                if(session._id){
+                  res.json({
+                    success: true,
+                    token: token,
+                    userId: user._id
+                  });
+                }else{
+                  res.status(400).json({
+                    message: 'User Already has Active Session.'
+                  })
+                }
+            });
+               
             }
           );
         } else {
-          return res
-            .status(400)
+          return res.status(400)
             .json({ message: "Password incorrect" });
-        }
+          }
       });
     });
   });

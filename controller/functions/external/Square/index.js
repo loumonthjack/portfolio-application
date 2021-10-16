@@ -121,7 +121,6 @@ async function getPriceTypes() {
 async function deletePriceType() {
     try {
         const response = await client.catalogApi.deleteCatalogObject('');
-        console.log(response.result);
         return response.result
       } catch(error) {
         console.log(error);
