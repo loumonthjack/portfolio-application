@@ -76,13 +76,13 @@ async function createNewCustomerCard(userId, data) {
                 const newCustomerCard = await client.customersApi.createCustomerCard(customer.id, {
                     cardNonce: data.card_nonce,
                     billingAddress: {
-                        addressLine1: data.addressLine1,
-                        addressLine2: data.addressLine2,
-                        locality: data.state,
-                        postalCode: data.zipCode,
-                        country: data.country
+                        addressLine1: data.cardData.addressLine1,
+                        addressLine2: data.cardData.addressLine2,
+                        locality: data.cardData.state,
+                        postalCode: data.cardData.zipCode,
+                        country: data.cardData.country
                     },
-                    cardholderName: data.cardholder
+                    cardholderName: data.cardData.cardholder
                 })
                 return JSONBig.parse(JSONBig.stringify(newCustomerCard));
             } else return 'Card Limit Reached. Please Delete Old Card!';

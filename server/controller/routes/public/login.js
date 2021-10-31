@@ -10,7 +10,7 @@ const validateLoginInput = require("../../../validation/login");
 // Load User Model
 const User = require("../../../models/User");
 const {
-  createUserSession
+  createUserSession, getUserSession
 } = require("../../functions/internal/session");
 
 // @route POST user/login
@@ -57,6 +57,7 @@ router.post("/", (req, res) => {
             expiresIn: 1800
           },
           (err, token) => {
+            getUserSession(user._id).then(result => console.log(result))
             createUserSession(user._id, token).then(session => {
               if (session._id) {
                 res.json({

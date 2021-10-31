@@ -43,7 +43,6 @@ const updateAccess = (req, res, next) => {
                     const today = new Date().getTime();
                     const diffDays = (date, otherDate) => Math.ceil(Math.abs(date - otherDate) / (1000 * 60 * 60 * 24));
                     const expiration = diffDays(today, lastPaymentDate);
-                    console.log(expiration)
                     const monthExpired = (expiration > 31);
                     const yearExpired = (expiration > 366);
                     if (payment.type == "monthly") {

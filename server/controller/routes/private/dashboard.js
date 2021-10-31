@@ -10,6 +10,7 @@ const Session = require("../../functions/internal/session");
 const { logEvent } = require("./../../logger");
 const { updateAccess } = require('../../middleware/updateAccess');
 
+
 // GET ALL USER PROJECTS, EDUCATIONS, EXPERIENCES, PROFILE
 router.get('/:user_id/', updateAccess, async (req, res) => {
     try {
