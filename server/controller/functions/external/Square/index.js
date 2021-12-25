@@ -36,15 +36,15 @@ async function getCustomer(userId) {
 
 async function createCustomer(userId) {
     try {
-        const user = await getUser(userId);
-        const customer = await getCustomer(userId)
-        if ((customer != undefined) && (customer.reference_id == user[0].id)) {
+        const {id, firstName, lastName, email} = await getUser(userId);
+        const customer = await getCustomer(userId);
+        if ((customer != undefined) && (customer.reference_id == id)) {
             return JSONBig.parse(JSONBig.stringify(customer))
         } else {
             const newCustomer = await client.customersApi.createCustomer({
-                givenName: `${user[0].firstName}`,
-                familyName: `${user[0].lastName}`,
-                emailAddress: `${user[0].email}`,
+                givenName: `${firstName}`,
+                familyName: `${lastName}`,
+                emailAddress: `${email}`,
                 referenceId: `${userId}`
             })
             return JSONBig.parse(JSONBig.stringify(newCustomer.result.customer))
@@ -156,8 +156,11 @@ async function createPriceType() {
 async function createSubscription(userId, data){
     try {
         const customer = await getCustomer(userId);
+        console.log(customer);
         const customerCard = await getCustomerCard(userId);
+        console.log(customerCard)
         const prices = await getPriceByType(data.access);
+        console.log(prices)
         const price = prices.filter(result => result.type == data.type);
         // Monthly Plus
         const response = await client.subscriptionsApi.createSubscription({

@@ -23,6 +23,9 @@ router.get('/:user_id/customer', async (req, res) => {
     try {
         const user = req.params.user_id;
         const customer = await Square.getCustomer(user);
+        if(!customer) res.status(400).json({
+            message: 'Customer does not exist in Square'
+        })
         logEvent(req, res);
         return res.send(customer)
     } catch (err) {
@@ -249,7 +252,7 @@ router.post('/:user_id/payment', async (req, res) => {
         const price = await Price.getPriceById(payment[0].priceId)
         const userRole = await getUser(userId)
         if (userRole.role != price.access) {
-            const updateUser = await updateUserRole(userId, price.access);
+            await updateUserRole(userId, price.access);
         }
         logEvent(req, res);
         return res.send({

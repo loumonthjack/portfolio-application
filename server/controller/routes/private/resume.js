@@ -81,7 +81,7 @@ router.post('/s3/:user_id/bucket/new', async (req, res) => {
                     message: err.stack
                 }) // an error occurred
             } else logEvent(req, res)
-            const setHosting = axios.get(`http://localhost:5000/resume/s3/${userId}/bucket/configure`, {
+            const setHosting = axios.get(`http://localhost:4000/resume/s3/${userId}/bucket/configure`, {
                 headers: {
                     'Authorization': req.headers['authorization']
                 }
@@ -118,7 +118,7 @@ router.get('/s3/:user_id/bucket/configure', async (req, res) => {
                     message: err.stack
                 })
             } else logEvent(req, res);
-            const setPolicy = axios.get(`http://localhost:5000/resume/s3/${userId}/bucket/policy`, {
+            const setPolicy = axios.get(`http://localhost:4000/resume/s3/${userId}/bucket/policy`, {
                 headers: {
                     'Authorization': req.headers['authorization']
                 }

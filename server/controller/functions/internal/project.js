@@ -32,13 +32,14 @@ async function getUserProjects(userId) {
 }
 
 async function createUserProject(userId, data) {
+    const { title, description, image, source, visit } = data;
     const project = await Project.create({
-        title: data.title,
-        description: data.description,
-        image: data.image,
-        source: data.source,
-        visit: data.visit,
-        userId: userId
+        title,
+        description,
+        image,
+        source,
+        visit,
+        userId
     });
     return project;
 }

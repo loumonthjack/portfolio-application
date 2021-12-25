@@ -26,7 +26,7 @@ app.use(cors({
 
 // DB Config
 const db = require("./config/keys").mongoURI;
-const { uuid } = require("uuidv4");
+const { v4 } = require("uuid");
 
 // Connect to MongoDB
 mongoose
@@ -44,7 +44,7 @@ mongoose
 const oneDay = 3600000;
 app.use(
   session({
-    secret: uuid(),
+    secret: v4(),
     name: "session-cookie",
     resave: true,
     saveUninitialized: true,
@@ -79,5 +79,5 @@ app.use('/resume', authorizeToken, resumeApi);
 app.use('/billing', authorizeToken, billingApi);
 
 // RUN SERVER //
-const port = process.env.PORT || 5000;
+const port = 4000 || 5000;
 app.listen(port, () => console.log(`Server up and running on port ${port} !`));
